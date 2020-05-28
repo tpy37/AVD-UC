@@ -27,7 +27,7 @@ plot(Re, C_d_z_flemmer, 'LineWidth', 3)
 hold on
 plot(Re, C_d(Re), 'LineWidth', 3)
 
-plot([69914.5632 69914.5632], [0.001 1e09],'r', 'LineWidth', 3)
+plot([41912.9758 41912.9758], [0.001 1e09],'r', 'LineWidth', 3)
 
 set(gca, 'XScale', 'log')
 set(gca, 'YScale', 'log')

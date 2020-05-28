@@ -19,15 +19,15 @@ if calculate_parametric
     pressure_sweep = logspace(log10(1000), log10(25000), 30);      % Pressure amplitude in Pa
     frequency_sweep = [20e03 40e03 80e03 160e03];    % Acoustic Frequency in Hz
     update_freq_sweep = [10];
-    r_min = 1/100;                      % min normalised radius
-    r_max = 0.25;                          % max nomalised radius
-    r_incr = 200;                       % number of increments in radius
+    r_min = 0.1;                      % min normalised radius
+    r_max = 0.2;                          % max nomalised radius
+    r_incr = 400;                       % number of increments in radius
     rho_min = rho_0;                     % min density in kg m3
-    rho_max = 50;                     % max density in kg m3
-    rho_incr = 200;                     % number of increments in density
+    rho_max = 15;                     % max density in kg m3
+    rho_incr = 400;                     % number of increments in density
     save_data = 0;
     r_normalised = linspace(r_min, r_max, r_incr);
-    rho_screen = logspace(log10(rho_min), log10(rho_max), rho_incr);
+    rho_screen = linspace(rho_min, rho_max, rho_incr);
     [RR, RHORHO]= ndgrid(r_normalised, rho_screen);
     
     %% Export Data Matrix
@@ -36,6 +36,7 @@ if calculate_parametric
     max_scr = zeros(length(frequency_sweep), length(pressure_sweep));
     vel_r = zeros(length(frequency_sweep), length(pressure_sweep));
     omega_r = zeros(length(frequency_sweep), length(pressure_sweep));
+    tc_count = 1;
     for jj = 1:length(frequency_sweep)
         acoustic_f = frequency_sweep(jj);
         for ii = 1:length(pressure_sweep)
@@ -59,8 +60,7 @@ if calculate_parametric
             %% Get maxima of either sec
             sc_max_sec1 = max(max(Sc_size_sec1));
             sc_max_sec2 = max(max(Sc_size_sec2));
-            
-            
+                      
             %% Export
             if sc_max_sec1 > sc_max_sec2
                 max_scr(jj, ii) = sc_max_sec1;
@@ -86,7 +86,6 @@ if calculate_parametric
     end
     save('results\parametric_study.mat')
 end
-
 %% Images
 load('results\parametric_study.mat') %#ok<LOAD>
 

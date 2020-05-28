@@ -51,7 +51,8 @@ caxis([0 20])
 title(h, 'm s^{-1}')
 hold on
 h1 = scatter(19./rho_0, 1e-03/(v_sound/acoustic_f), 'ko','LineWidth', 8);
-
+xlim([1 max(rho_screen)./rho_0])
+ 
 % Draw Point A
 text(19./rho_0+2.5, 1e-03/(v_sound/acoustic_f),'Point A','FontSize', 30)
 ylim([min(r_normalised) max(r_normalised)])
@@ -76,4 +77,6 @@ h1 = scatter(19./rho_0, 1e-03/(v_sound/acoustic_f), 'ko','LineWidth', 8);
 text(19./rho_0+2.5, 1e-03/(v_sound/acoustic_f),'Point A','FontSize', 30)
 ylim([min(r_normalised) max(r_normalised)])
 title('Horizontal (No grav/buoy)')
+xlim([1 max(rho_screen)./rho_0])
+ 
 saveas(gcf,'results\supp_figure\vertical_horizontal_compare.png')

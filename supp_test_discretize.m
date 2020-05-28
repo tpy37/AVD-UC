@@ -1,14 +1,14 @@
 % Acoustophoretic Volumetric Display - Ultimate Capability (AVD-UC).
-% 
+%
 % Codes for: "What is the Ultimate Capability of Acoustophoretic Volumetric
 % Displays?".
-% 
+%
 % Authors: Tatsuki Fushimi, Bruce W. Drinkwater, and Thomas L. Hill.
-% 
+%
 % Journal: Applied Physics Letters.
-% 
+%
 % Created: 30-Apr-2020.
-% 
+%
 % Please contact Tatsuki FUSHIMI (t.fushimi@bristol.ac.uk) for any inquiry.
 % Released under MIT License
 
@@ -44,12 +44,15 @@ for ii = 1:length(pressure_sweep)
         Sc_size_sec1 = 2.*sqrt((max_velocity_store'.*(RR.*wavelength))./(pi.*f_r));
         omega_sec1 = sqrt((f_r.*pi.*max_velocity_store')./(RR.*(wavelength)));
         Sc_size_sec1(omega_sec1>omega_n_store') = NaN;
+        Sc_size_sec1(RHORHO<1) = NaN;
+        
         
         %% Sec 2
         v_sec2 = ((((max_velocity_store'.*omega_n_store').^2).*RR.*wavelength)./(f_r.*pi)).^(1/3);
         v_sec2(v_sec2 > max_velocity_store') = NaN;
         omega_ac = (1./(v_sec2).*max_velocity_store'.*omega_n_store');
-        Sc_size_sec2 = 2.*sqrt((v_sec2.*(RR.*wavelength))./(pi.*f_r));          
+        Sc_size_sec2 = 2.*sqrt((v_sec2.*(RR.*wavelength))./(pi.*f_r));
+        Sc_size_sec2(RHORHO<1) = NaN;
         
         %% N_par must be integer value. Recalculate screen size after making it into interger.
         N_par_sec1 = floor(Sc_size_sec1./(2.*RR.*wavelength));
@@ -83,26 +86,37 @@ for ii = 1:length(pressure_sweep)
         else
             set(gca,'yticklabel',[])
         end
-        if ii ==2
+        
+        if or(tc_count==1, tc_count == 2)
+            caxis([0 60])
+            clabel(Cv,hv, v_h,'FontSize',12,'Color','white','LabelSpacing',300)
+            v_h = [0:20:120];
+            set(gca,'xticklabel',[])
+        end
+        
+        if or(tc_count == 3, tc_count ==4)
+            caxis([0 180])
             xlabel('\rho_p / \rho_0 [-]')
             xticks('auto')
             xticklabels('auto')
-            caxis([0 260])
-            h123 = colorbar('Position', [0.6916+0.2134+0.01  0.1100+0.04  0.025  0.1100+0.2134*1.1], ...
-                'YTick',[0:50:250],'FontSize',30);
-            title(h123, 'S_d [mm]','FontSize',25);
-            clabel(C,h, v_h,'FontSize',12,'Color','white','LabelSpacing',800)
-        else
-            set(gca,'xticklabel',[])
-            caxis([0 120])
-            h256 = colorbar('Position', [0.6916+0.2134+0.01  0.5200+0.05  0.025  0.1100+0.2134*1.1], ...
-                'YTick',[0:20:120],'FontSize',30);
-            title(h256, 'S_d [mm]','FontSize',25);
-            clabel(C,h, v_h,'FontSize',12,'Color','white')
+            v_h = [0:40:180];
+            clabel(Cv,hv, v_h,'FontSize',12,'Color','white','LabelSpacing',9000)
+        end
+        
+        if tc_count == 2
+            h123 = colorbar('Position', [0.6916+0.2134+0.01  0.5200+0.05  0.025  0.1100+0.2134*1.1], ...
+                'YTick',[0:10:60],'FontSize',30);
+            title(h123, 'S_r [mm]','FontSize',25);
+        end
+        
+        if tc_count == 4
+            h256 = colorbar('Position', [0.6916+0.2134+0.01  0.1100+0.04  0.025  0.1100+0.2134*1.1], ...
+                'YTick',[0:20:180],'FontSize',30);
+            title(h256, 'S_r [mm]','FontSize',25);
         end
         
         ylim([min(r_normalised) max(r_normalised)])
-        xlim([min(rho_screen)./rho_0 max(rho_screen)./rho_0])
+        xlim([1 max(rho_screen)./rho_0])
         grid on
         grid minor
         hold on

@@ -17,8 +17,6 @@ tc_count = 1;
 figure('units','normalized','outerposition',[0 0 1 1])
 ha = tight_subplot(2,2,[.04 .04],[.15 .08],[.1 .12]);
 
-v_h = [0:40:260];
-
 cyc_len = 300;
 %% Go through the sweep
 for ii = 1:length(pressure_sweep)
@@ -71,44 +69,16 @@ for ii = 1:length(pressure_sweep)
         ratio_store_sec1(omega_sec1'>omega_n_store) = NaN;
         ratio_store_sec2(v_sec2>=max_velocity_store') = NaN;
         
-        
         %% Plot Contour Plots
         axes(ha(tc_count))
         
         hold on
-        [C, h] = contourf(rho_screen./rho_0, r_normalised, Sc_size_sec1.*1000,[0:10:260]);
-        [Cv, hv] = contourf(rho_screen./rho_0, r_normalised, Sc_size_sec2.*1000,[0:10:260]);
+        [C, h] = contourf(rho_screen./rho_0, r_normalised, Sc_size_sec1.*1000,[0:10:200]);
+        [Cv, hv] = contourf(rho_screen./rho_0, r_normalised, Sc_size_sec2.*1000,[0:10:200]);
         hold on
         shading interp
         set(gca, 'XScale', 'log')
-        
-        %% Information Output
-        temp_SC_SIZE = max(max(Sc_size_sec1));
-        temp_SC_SIZE_AC = max(max(Sc_size_sec2));
-        max_A_r = max([temp_SC_SIZE temp_SC_SIZE_AC]);
-        if temp_SC_SIZE > temp_SC_SIZE_AC
-            find_p = find(Sc_size_sec1==temp_SC_SIZE);
-        else
-            find_p = find(Sc_size_sec2==temp_SC_SIZE_AC);
-        end
-        disp(['------- Subplot ' num2str(tc_count) ' -------'])
-        disp(['Best SCR Size = ' num2str(max_A_r)])
-        disp(['rho @ best = ' num2str(RHORHO(find_p)./rho_0)])
-        disp(['r @ best = ' num2str(RR(find_p))])
-        
-        point_a_acc = interpn(rho_screen, r, max_velocity_store.*omega_n_store, 19, 1e-03);
-        point_a_omega = interpn(rho_screen, r, omega_n_store, 19, 1e-03);
-        
-        disp(['Max Acceleration @ Point A= ' num2str(max(max(point_a_acc)))])
-        disp(['Max Particle Frequency @ Point A= ' num2str(max(max(point_a_omega)))])
-        
-        
-        rem_ratio = abs(rem_check./ arf_store).*100;
-        disp(['Largest abs(f_val/ARF) is (in percentage)= ' num2str(max(max(rem_ratio(~isnan(rem_ratio)))))])
-        disp(['Largest Reynolds number ' num2str(max(max(reynolds_check(~isnan(reynolds_check)))))])
-        
-        ratio_store_sec1(ratio_store_sec1>1.15) = NaN; %1.15
-        
+               
         %% Highlight 15 % Error Overshoot
         Q = bwperim(bwmorph(isnan( ratio_store_sec1' ),'fill')); % Using the contrast between the boundary to find the outline.
         Q(1,:) = 0;
@@ -151,26 +121,37 @@ for ii = 1:length(pressure_sweep)
         else
             set(gca,'yticklabel',[])
         end
-        if ii ==2
+        
+        if or(tc_count==1, tc_count == 2)
+            caxis([0 60])
+            v_h = [0:20:120];
+            clabel(Cv,hv, v_h,'FontSize',12,'Color','white','LabelSpacing',300)
+            set(gca,'xticklabel',[])
+        end
+        
+        if or(tc_count == 3, tc_count ==4)
+            caxis([0 180])
             xlabel('\rho_p / \rho_0 [-]')
             xticks('auto')
             xticklabels('auto')
-            caxis([0 260])
-            h123 = colorbar('Position', [0.6916+0.2134+0.01  0.1100+0.04  0.025  0.1100+0.2134*1.1], ...
-                'YTick',[0:50:250],'FontSize',30);
+            v_h = [0:40:200];
+            clabel(Cv,hv, v_h,'FontSize',12,'Color','white','LabelSpacing',9000)
+        end
+        
+        if tc_count == 2
+            h123 = colorbar('Position', [0.6916+0.2134+0.01  0.5200+0.05  0.025  0.1100+0.2134*1.1], ...
+                'YTick',[0:10:60],'FontSize',30);
             title(h123, 'S_r [mm]','FontSize',25);
-            clabel(C,h, v_h,'FontSize',12,'Color','white','LabelSpacing',800)
-        else
-            set(gca,'xticklabel',[])
-            caxis([0 120])
-            h256 = colorbar('Position', [0.6916+0.2134+0.01  0.5200+0.05  0.025  0.1100+0.2134*1.1], ...
-                'YTick',[0:20:120],'FontSize',30);
+        end
+        
+        if tc_count == 4
+            h256 = colorbar('Position', [0.6916+0.2134+0.01  0.1100+0.04  0.025  0.1100+0.2134*1.1], ...
+                'YTick',[0:20:180],'FontSize',30);
             title(h256, 'S_r [mm]','FontSize',25);
-            clabel(C,h, v_h,'FontSize',12,'Color','white')
         end
         
         ylim([min(r_normalised) max(r_normalised)])
-        xlim([min(rho_screen)./rho_0 max(rho_screen)./rho_0])
+        xlim([1 max(rho_screen)./rho_0])
         grid on
         grid minor
         hold on
@@ -184,6 +165,42 @@ for ii = 1:length(pressure_sweep)
             text(0.01, 0.4, [num2str(pressure_sweep(ii)/1000) 'kPa'],'FontSize',30,'FontWeight','bold','Rotation',90)
         end
         
+        %% Information Output
+        temp_SC_SIZE = Sc_size_sec1;
+        temp_SC_SIZE(RHORHO./rho_0 < 1) = NaN;
+        temp_SC_SIZE = max(max(temp_SC_SIZE));
+        
+        temp_SC_SIZE_AC = Sc_size_sec2;
+        temp_SC_SIZE_AC(RHORHO./rho_0 < 1) = NaN;
+        temp_SC_SIZE_AC = max(max(temp_SC_SIZE_AC));
+        
+        
+        max_A_r = max([temp_SC_SIZE temp_SC_SIZE_AC]);
+        if temp_SC_SIZE > temp_SC_SIZE_AC
+            find_p = find(Sc_size_sec1==temp_SC_SIZE);
+        else
+            find_p = find(Sc_size_sec2==temp_SC_SIZE_AC);
+        end
+        disp(['------- Subplot ' num2str(tc_count) ' -------'])
+        disp(['Pressure: ' num2str(p_a)])
+        disp(['Frequency: ' num2str(acoustic_f)])
+        disp(['Best SCR Size = ' num2str(max_A_r)])
+        disp(['rho @ best = ' num2str(RHORHO(find_p)./rho_0)])
+        disp(['r @ best = ' num2str(RR(find_p))])
+        
+        point_a_acc = interpn(rho_screen, r, max_velocity_store.*omega_n_store, 19, 1e-03);
+        point_a_omega = interpn(rho_screen, r, omega_n_store, 19, 1e-03);
+        
+        disp(['Max Acceleration @ Point A= ' num2str(max(max(point_a_acc)))])
+        disp(['Max Particle Frequency @ Point A= ' num2str(max(max(point_a_omega)))])
+        
+        rem_check(RHORHO'./rho_0 < 1) = NaN;
+        reynolds_check(RHORHO'./rho_0 < 1) = NaN;
+        rem_ratio = abs(rem_check./ arf_store).*100;
+        disp(['Largest abs(f_val/ARF) is (in percentage)= ' num2str(max(max(rem_ratio(~isnan(rem_ratio)))))])
+        disp(['Largest Reynolds number ' num2str(max(max(reynolds_check(~isnan(reynolds_check)))))])
+        
+        ratio_store_sec1(ratio_store_sec1>1.15) = NaN; %1.15
         tc_count = tc_count+1;
     end
 end

@@ -22,7 +22,7 @@ load(['results/study_ff_' num2str(acoustic_f) '_Hz_pp_' num2str(p_a) '_Pa.mat'])
 
 %% Figure 1
 figure('units','normalized','outerposition',[0 0 1 1])
-[C, hvv] = contourf(rho_screen./rho_0, r_normalised, arf_store'.*1e03, [0:0.25:2]);
+[C, hvv] = contourf(rho_screen./rho_0, r_normalised, arf_store'.*1e03, [0:0.125:0.75]);
 colormap hot
 hold on
 h = colorbar;
@@ -30,8 +30,8 @@ shading interp
 set(gca, 'XScale', 'log')
 xlabel('\rho_p / \rho_0 [-]')
 ylabel('r/\lambda [-]')
-caxis([0 2])
-clabel(C, hvv, [0:0.25:2],'FontSize',20,'LabelSpacing',80000,'Color','white')
+caxis([0 0.75])
+clabel(C, hvv, [0:0.25:0.75],'FontSize',20,'LabelSpacing',80000,'Color','white')
 [model] = sub_fig1_code();
 plot(model.sect1_rho, model.sect1_rr, 'g', 'LineWidth',3);
 plot(model.sect2_rho, model.sect2_rr, 'g', 'LineWidth',3);
@@ -42,6 +42,7 @@ h1 = scatter(19./rho_0, 1e-03/(v_sound/acoustic_f), 'wo','LineWidth', 8);
 text(19./rho_0+2.5, 1e-03/(v_sound/acoustic_f),'Point A','FontSize', 30,'Color','w')
 set(gca,'FontSize', 40)
 
+xlim([1 max(rho_screen./rho_0)])
 ylim([min(r_normalised) max(r_normalised)])
 
 grid on
@@ -54,7 +55,7 @@ set(gcf,...
 fig= gcf;
 set(gca,'layer','top')
 print(fig,['results\main_figure\FIG1_APL_arf_apfel' ],'-dpdf','-r0')
-% return
+
 %% Figure 2
 
 figure('units','normalized','outerposition',[0 0 1 1])
@@ -103,6 +104,7 @@ plot(model.sect3_rho, model.sect3_rr, 'g', 'LineWidth',3);
 plot(model.sect4_rho, model.sect4_rr, 'g', 'LineWidth',3);
 plot(model.sect5_rho, model.sect5_rr, 'g', 'LineWidth',3);
 
+xlim([1 max(rho_screen./rho_0)])
 ylim([min(r_normalised) max(r_normalised)])
 
 set(gcf,'Units','inches');
@@ -172,8 +174,8 @@ h1 = scatter(19./rho_0, 1e-03/(v_sound/acoustic_f), 'ko','LineWidth', 8);
 
 text(19./rho_0+2.5, 1e-03/(v_sound/acoustic_f),'Point A','FontSize', 30);
 % return
-text(0.09, 0.3, 'v = v_{max}, a \leq a_{max}','FontSize', 34)
-text(0.937, 0.54, 'v \leq v_{max}, a = a_{max}','FontSize', 34)
+text(1.076, 0.056, 'v = v_{max}, a \leq a_{max}','FontSize', 30)
+text(2.773, 0.1637, 'v \leq v_{max}, a = a_{max}','FontSize', 30)
 
 plot(model.sect1_rho, model.sect1_rr, 'g', 'LineWidth',3);
 plot(model.sect2_rho, model.sect2_rr, 'g', 'LineWidth',3);
@@ -181,6 +183,7 @@ plot(model.sect3_rho, model.sect3_rr, 'g', 'LineWidth',3);
 plot(model.sect4_rho, model.sect4_rr, 'g', 'LineWidth',3);
 plot(model.sect5_rho, model.sect5_rr, 'g', 'LineWidth',3);
 legend(scatter_p, 'Transition Point (10 Hz)')
+xlim([1 max(rho_screen./rho_0)])
 ylim([min(r_normalised) max(r_normalised)])
 shading interp
 set(gcf,'Units','inches');

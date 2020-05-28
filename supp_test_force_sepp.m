@@ -120,7 +120,7 @@ if recalculate
         end
     end
 end
-
+line_of_interest= 0.15; 
 figure
 tc_count = 1;
 for ii = 1:length(pressure_sweep)
@@ -146,7 +146,7 @@ for ii = 1:length(pressure_sweep)
         shading interp
         set(gca, 'XScale', 'log')
         ylim([min(r_normalised) max(r_normalised)])
-        xlim([min(rho_screen)./rho_0 max(rho_screen)./rho_0])
+        xlim([1 max(rho_screen)./rho_0])
         cbh = colorbar ; %Create Colorbar
         cbh.Ticks = linspace(1, 1.3, 2) ; %Create 8 ticks from zero to 1
         cbh.TickLabels = {'\leq 1','1.3'} ;
@@ -169,12 +169,24 @@ for ii = 1:length(pressure_sweep)
         figure(3)
         subplot(2,2,tc_count)
         hold on
-        contourf(rho_screen./rho_0, r_normalised, SS_size.*1000)
+        [Cv, hv] = contourf(rho_screen./rho_0, r_normalised, SS_size.*1000,[0:10:200]);
         xlabel('\rho_p / \rho_0 [-]')
         ylabel('r/\lambda [-]')
         shading interp
+        if or(tc_count == 1, tc_count ==2)
+            caxis([0 60])
+            v_h = [0:40:180];
+            clabel(Cv,hv, v_h,'FontSize',12,'Color','white','LabelSpacing',300)
+        end
+        
+        if or(tc_count == 3, tc_count ==4)
+            caxis([0 180])
+            v_h = [0:40:180];
+            clabel(Cv,hv, v_h,'FontSize',12,'Color','white','LabelSpacing',9000)
+        end
         colorbar
         set(gca, 'XScale', 'log')
+        xlim([1 max(rho_screen)./rho_0])
         grid on
         grid minor
         set(gca,'layer','top')
@@ -193,7 +205,9 @@ for ii = 1:length(pressure_sweep)
         find_sec1 = find(ratio_store_sec1>1.15);
         find_sec2 = find(ratio_store_sec2>1.15);
         compare_ss1 = Sc_size_sec1./SS_size;
+        compare_ss1(RHORHO<1) = NaN;
         compare_ss2 = Sc_size_sec2./SS_size;
+        compare_ss2(RHORHO<1) = NaN;
         
         m1 = min(compare_ss1(find_sec1));
         m2 = min(compare_ss2(find_sec2));
@@ -206,17 +220,17 @@ for ii = 1:length(pressure_sweep)
         if tc_count == 2
             %% Plot Cross Section of Interest
             figure(1)
-            plot([min(rho_screen)./rho_0 max(rho_screen)./rho_0],[0.35 0.35],'r','LineWidth',3)
+            plot([min(rho_screen)./rho_0 max(rho_screen)./rho_0],[line_of_interest line_of_interest],'r','LineWidth',3)
             %% Cross Section Plot
             figure(2)
             %% Ratio
             subplot(4,1,1)
             hold on
-            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, ratio_store_sec1', rho_screen, 0.35),'-k','LineWidth',2);
-            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, permissible_ratio, rho_screen, 0.35),'--r','LineWidth',2);
-            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, ratio_store_sec2', rho_screen, 0.35),'-k','LineWidth',2);
+            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, ratio_store_sec1', rho_screen, line_of_interest),'-k','LineWidth',2);
+            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, permissible_ratio, rho_screen, line_of_interest),'--r','LineWidth',2);
+            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, ratio_store_sec2', rho_screen, line_of_interest),'-k','LineWidth',2);
             set(gca, 'XScale', 'log')
-            xlim([min(rho_screen)./rho_0 max(rho_screen)./rho_0])
+            xlim([1 max(rho_screen)./rho_0])
             ylabel('R')
             legend('Force Separation Method (Manuscript)','Correction')
             set(gca,'FontSize',24)
@@ -225,11 +239,11 @@ for ii = 1:length(pressure_sweep)
             hold on
             tt = max_velocity_store;
             tt(omega_g_v'>omega_n_store) = NaN;
-            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, tt, rho_screen, 0.35),'-k','LineWidth',2);
-            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, v_sec2', rho_screen, 0.35),'-k','LineWidth',2);
-            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, permissible_v, rho_screen, 0.35),'--r','LineWidth',2);
+            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, tt, rho_screen, line_of_interest),'-k','LineWidth',2);
+            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, v_sec2', rho_screen, line_of_interest),'-k','LineWidth',2);
+            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, permissible_v, rho_screen, line_of_interest),'--r','LineWidth',2);
             set(gca, 'XScale', 'log')
-            xlim([min(rho_screen)./rho_0 max(rho_screen)./rho_0])
+            xlim([1 max(rho_screen)./rho_0])
             ylabel('v [m s^{-1}]')
             set(gca,'FontSize',24)
             subplot(4,1,3)
@@ -237,11 +251,11 @@ for ii = 1:length(pressure_sweep)
             hold on
             tt = omega_g_v';
             tt(omega_g_v'>omega_n_store) = NaN;
-            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, tt, rho_screen, 0.35),'-k','LineWidth',2);
-            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, omega_sec2', rho_screen, 0.35),'-k','LineWidth',2);
-            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, permissible_o, rho_screen, 0.35),'--r','LineWidth',2);
+            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, tt, rho_screen, line_of_interest),'-k','LineWidth',2);
+            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, omega_sec2', rho_screen, line_of_interest),'-k','LineWidth',2);
+            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, permissible_o, rho_screen, line_of_interest),'--r','LineWidth',2);
             set(gca, 'XScale', 'log')
-            xlim([min(rho_screen)./rho_0 max(rho_screen)./rho_0])
+            xlim([1 max(rho_screen)./rho_0])
             ylabel('\omega_p [rad s^{-1}]')
             set(gca,'FontSize',24)
             subplot(4,1,4)
@@ -249,18 +263,18 @@ for ii = 1:length(pressure_sweep)
             hold on
             tt = Sc_size_sec1';
             tt(omega_g_v'>omega_n_store) = NaN;
-            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, tt, rho_screen, 0.35).*1000,'-k','LineWidth',2);
-            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, Sc_size_sec2', rho_screen, 0.35).*1000,'-k','LineWidth',2);
-            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, SS_size', rho_screen, 0.35).*1000,'--r','LineWidth',2);
+            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, tt, rho_screen, line_of_interest).*1000,'-k','LineWidth',2);
+            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, Sc_size_sec2', rho_screen, line_of_interest).*1000,'-k','LineWidth',2);
+            plot(rho_screen./rho_0, interpn(rho_screen, r_normalised, SS_size', rho_screen, line_of_interest).*1000,'--r','LineWidth',2);
             set(gca, 'XScale', 'log')
-            xlim([min(rho_screen)./rho_0 max(rho_screen)./rho_0])
+            xlim([1 max(rho_screen)./rho_0])
             ylabel('S_r [mm]')
             xlabel('\rho_p/\rho_0 [-]')
             set(gca,'FontSize',24)
             
             %% Display diff
-            c_d1 = max(interpn(rho_screen, r_normalised, Sc_size_sec1', rho_screen, 0.35)./interpn(rho_screen, r_normalised, SS_size', rho_screen, 0.35));
-            c_d2 = max(interpn(rho_screen, r_normalised, Sc_size_sec2', rho_screen, 0.35)./interpn(rho_screen, r_normalised, SS_size', rho_screen, 0.35));
+            c_d1 = max(interpn(rho_screen, r_normalised, Sc_size_sec1', rho_screen, line_of_interest)./interpn(rho_screen, r_normalised, SS_size', rho_screen, 0.35));
+            c_d2 = max(interpn(rho_screen, r_normalised, Sc_size_sec2', rho_screen, line_of_interest)./interpn(rho_screen, r_normalised, SS_size', rho_screen, 0.35));
             
             disp(['Max Difference in Plot 2 = ' num2str(max([c_d1 c_d2]))])
             
