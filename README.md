@@ -1,6 +1,7 @@
 # Acoustophoretic Volumetric Display - Ultimate Capability (AVD-UC)
-
+## Main
 This program accompanies the manucript entitled:
+
 Title: 	What is the Ultimate Capability of Acoustophoretic Volumetric Displays?
 Author: Tatsuki FUSHIMI, Bruce W. DRINKWATER, Thomas L. HILL
 Journal: Applied Physics Letters
