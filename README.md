@@ -3,8 +3,11 @@
 This program accompanies the manucript entitled:
 
 Title: 	What is the Ultimate Capability of Acoustophoretic Volumetric Displays?
+
 Author: Tatsuki FUSHIMI, Bruce W. DRINKWATER, Thomas L. HILL
+
 Journal: Applied Physics Letters
+
 Manuscript Accepted on: 22nd May 2020
 
 This analyses the limitation imposed on Acoustophoretic Volumetric Display (AVD) using a generic model of acoustic levitation. 
